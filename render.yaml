@@ -1,18 +1,13 @@
 services:
   - type: web
-    name: zomato-rating-flask
+    name: zomato-rating-predictor
     env: python
     buildCommand: |
-      echo "=== DEBUGGING PYTHON VERSION ==="
-      python --version
-      python3 --version
-      echo "=== FORCE INSTALL COMPATIBLE PACKAGES ==="
-      python -m pip install --upgrade pip==23.3.1
-      python -m pip install --only-binary=:all: --force-reinstall --no-deps Flask==2.3.3
-      python -m pip install --only-binary=:all: --force-reinstall --no-deps gunicorn==21.2.0
-      python -m pip install --only-binary=:all: --force-reinstall --no-deps numpy==1.21.6
-      python -m pip install --only-binary=:all: --force-reinstall --no-deps pandas==1.3.5
-      python -m pip install --only-binary=:all: --force-reinstall --no-deps scikit-learn==1.0.2
-      python -m pip install --only-binary=:all: --force-reinstall --no-deps joblib==1.1.1
-      echo "=== INSTALLATION COMPLETE ==="
-    startCommand: gunicorn app:app 
+      echo "=== Installing dependencies ==="
+      python -m pip install --upgrade pip
+      python -m pip install -r requirements.txt
+      echo "=== Training model if needed ==="
+      python model_trainer.py
+      echo "=== Build complete ==="
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    plan: free
