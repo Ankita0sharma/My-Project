@@ -15,4 +15,4 @@ services:
       python -m pip install --only-binary=:all: --force-reinstall --no-deps scikit-learn==1.0.2
       python -m pip install --only-binary=:all: --force-reinstall --no-deps joblib==1.1.1
       echo "=== INSTALLATION COMPLETE ==="
-    startCommand: gunicorn app:app (1)
+    startCommand: gunicorn app:app 
