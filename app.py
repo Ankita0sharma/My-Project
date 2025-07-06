@@ -9,8 +9,7 @@ from sklearn.model_selection import train_test_split
 import warnings
 warnings.filterwarnings('ignore')
 
-app = Flask(_name_)
-
+app = Flask(__name__)
 def train_and_save_model():
     """Train model and save encoders if they don't exist"""
     try:
