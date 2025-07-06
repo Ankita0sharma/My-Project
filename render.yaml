@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: zomato-rating-predictor
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
