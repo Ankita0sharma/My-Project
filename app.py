@@ -2,14 +2,65 @@ import numpy as np
 from flask import Flask, request, jsonify, render_template
 import pickle
 import os
-from sklearn.preprocessing import LabelEncoder
+import pandas as pd
 from sklearn.ensemble import ExtraTreesRegressor
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+import warnings
+warnings.filterwarnings('ignore')
 
 app = Flask(_name_)
 
-def create_dummy_model_and_encoders():
-    """Create dummy model and encoders if files don't exist"""
-    # Create dummy label encoders
+def train_and_save_model():
+    """Train model and save encoders if they don't exist"""
+    try:
+        # Load data
+        df = pd.read_csv('Zomato_df.csv')
+        
+        # Drop unnecessary columns
+        if 'Unnamed: 0' in df.columns:
+            df.drop('Unnamed: 0', axis=1, inplace=True)
+        
+        # Initialize encoders
+        le_location = LabelEncoder()
+        le_rest_type = LabelEncoder()
+        le_cuisines = LabelEncoder()
+        le_menu_item = LabelEncoder()
+        
+        # Encode categorical variables (adjust column names as needed)
+        df['location_encoded'] = le_location.fit_transform(df['location'])
+        df['rest_type_encoded'] = le_rest_type.fit_transform(df['rest_type'])
+        df['cuisines_encoded'] = le_cuisines.fit_transform(df['cuisines'])
+        df['menu_item_encoded'] = le_menu_item.fit_transform(df['menu_item'])
+        
+        # Prepare features
+        X = df[['online_order', 'book_table', 'votes', 'location_encoded', 
+                'rest_type_encoded', 'cuisines_encoded', 'menu_item_encoded', 'cost']]
+        y = df['rate']
+        
+        # Split and train
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=10)
+        
+        # Train model
+        model = ExtraTreesRegressor(n_estimators=120, random_state=42)
+        model.fit(X_train, y_train)
+        
+        # Save model and encoders
+        pickle.dump(model, open('model.pkl', 'wb'))
+        pickle.dump(le_location, open('le_location.pkl', 'wb'))
+        pickle.dump(le_rest_type, open('le_rest_type.pkl', 'wb'))
+        pickle.dump(le_cuisines, open('le_cuisines.pkl', 'wb'))
+        pickle.dump(le_menu_item, open('le_menu_item.pkl', 'wb'))
+        
+        print("Model trained and saved successfully!")
+        return model, le_location, le_rest_type, le_cuisines, le_menu_item
+        
+    except Exception as e:
+        print(f"Error training model: {e}")
+        return create_dummy_model()
+
+def create_dummy_model():
+    """Create dummy model if training fails"""
     le_location = LabelEncoder()
     le_rest_type = LabelEncoder()
     le_cuisines = LabelEncoder()
@@ -24,29 +75,24 @@ def create_dummy_model_and_encoders():
     # Create dummy model
     model = ExtraTreesRegressor(n_estimators=10, random_state=42)
     X_dummy = np.random.rand(100, 8)
-    y_dummy = np.random.rand(100) * 4 + 1  # ratings between 1-5
+    y_dummy = np.random.rand(100) * 4 + 1
     model.fit(X_dummy, y_dummy)
     
     return model, le_location, le_rest_type, le_cuisines, le_menu_item
 
+# Initialize model and encoders
 try:
-    # Try to load existing model and encoders
-    if all(os.path.exists(f) for f in ['model.pkl', 'le_location.pkl', 'le_rest_type.pkl', 'le_cuisines.pkl', 'le_menu_item.pkl']):
-        model = pickle.load(open('model.pkl', 'rb'))
-        le_location = pickle.load(open('le_location.pkl', 'rb'))
-        le_rest_type = pickle.load(open('le_rest_type.pkl', 'rb'))
-        le_cuisines = pickle.load(open('le_cuisines.pkl', 'rb'))
-        le_menu_item = pickle.load(open('le_menu_item.pkl', 'rb'))
-        print("Loaded existing model and encoders")
-    else:
-        # Create dummy model and encoders
-        model, le_location, le_rest_type, le_cuisines, le_menu_item = create_dummy_model_and_encoders()
-        print("Created dummy model and encoders")
-        
-except Exception as e:
-    print(f"Error loading model: {e}")
-    model, le_location, le_rest_type, le_cuisines, le_menu_item = create_dummy_model_and_encoders()
-    print("Created dummy model and encoders due to error")
+    # Try to load existing model
+    model = pickle.load(open('model.pkl', 'rb'))
+    le_location = pickle.load(open('le_location.pkl', 'rb'))
+    le_rest_type = pickle.load(open('le_rest_type.pkl', 'rb'))
+    le_cuisines = pickle.load(open('le_cuisines.pkl', 'rb'))
+    le_menu_item = pickle.load(open('le_menu_item.pkl', 'rb'))
+    print("Loaded existing model")
+except:
+    # Train new model
+    print("Training new model...")
+    model, le_location, le_rest_type, le_cuisines, le_menu_item = train_and_save_model()
 
 @app.route('/')
 def home():
@@ -56,14 +102,14 @@ def home():
 def predict():
     try:
         # Get input values from form
-        online_order = int(request.form.get('Online Order', 0))
-        book_table = int(request.form.get('Book Table', 0))
-        votes = int(request.form.get('Votes', 0))
-        location = request.form.get('Location', 'BTM')
-        rest_type = request.form.get('Restaurant Type', 'Casual Dining')
-        cuisines = request.form.get('Cuisines', 'North Indian')
-        menu_item = request.form.get('Menu Item', 'Biryani')
-        cost = float(request.form.get('Cost', 500))
+        online_order = int(request.form['Online Order'])
+        book_table = int(request.form['Book Table'])
+        votes = int(request.form['Votes'])
+        location = request.form['Location']
+        rest_type = request.form['Restaurant Type']
+        cuisines = request.form['Cuisines']
+        menu_item = request.form['Menu Item']
+        cost = float(request.form['Cost'])
 
         # Handle unknown labels with fallback
         try:
@@ -100,9 +146,6 @@ def predict():
     except Exception as e:
         return render_template('index.html', prediction_text=f'Error: {str(e)}')
 
-@app.route('/health')
-def health():
-    return {'status': 'healthy'}
-
 if _name_ == "_main_":
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
