@@ -2,12 +2,5 @@ services:
   - type: web
     name: zomato-rating-predictor
     env: python
-    buildCommand: |
-      echo "=== Installing dependencies ==="
-      python -m pip install --upgrade pip
-      python -m pip install -r requirements.txt
-      echo "=== Training model if needed ==="
-      python model_trainer.py
-      echo "=== Build complete ==="
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
-    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
