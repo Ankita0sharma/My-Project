@@ -15,13 +15,13 @@
 
 <img src=
 "https://restaurantindia.s3.ap-south-1.amazonaws.com/s3fs-public/news14109.jpg"
-         alt="zomato image", width="400", height="100", style="float:left">
+         alt="zomato image", width="300", height="90", style="float:left">
 
 
 <style>
 body {
   background-image: url("https://images.pexels.com/photos/952356/pexels-photo-952356.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500");
-  background-position: 200%;
+  background-position: 100%;
   background-size: cover;
 }
 </style>
@@ -33,8 +33,8 @@ body {
 
      <!-- Main Input For Receiving Query to our ML -->
     <form action="{{ url_for('predict')}}"method="post">
-    	<input type="text" name="Online Order" placeholder="Order Online" required="required" />
-        <input type="text" name="Book Table" placeholder="Book Table" required="required" />
+    	<input type="text" name="Online Order" placeholder="Order Online 1 for  Yes and 0 for No" required="required" />
+        <input type="text" name="Book Table" placeholder="Book Table 1 for  Yes and 0 for No" required="required" />
 		<input type="text" name="Votes" placeholder="Votes" required="required" />
         <input type="text" name="Location" placeholder="Location" required="required" />
         <input type="text" name="Restaurant Type" placeholder="Restaurant Type" required="required" />
