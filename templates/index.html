@@ -1,56 +1,126 @@
 <!DOCTYPE html>
-<html >
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Total Data Science</title>
-  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  
+  <title>Zomato Rating Predictor</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Pacifico|Arimo|Hind:300|Open+Sans+Condensed:300" rel="stylesheet">
+
+  <!-- External CSS (if using Flask static folder) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image: url("https://images.pexels.com/photos/952356/pexels-photo-952356.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #fff;
+      text-align: center;
+    }
+
+    .login {
+      max-width: 400px;
+      width: 90%;
+      margin: 50px auto;
+      padding: 30px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .login h1 {
+      margin-bottom: 20px;
+      font-size: 26px;
+    }
+
+    input {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      font-size: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      color: #000;
+    }
+
+    .btn {
+      background-color: #CB202D;
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background-color: #ff5252;
+    }
+
+    .prediction {
+      margin-top: 25px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #00ffae;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    img.logo {
+      width: 300px;
+      height: 90px;
+      float: left;
+      margin: 20px;
+    }
+
+    @media (max-width: 600px) {
+      img.logo {
+        float: none;
+        display: block;
+        margin: 0 auto 20px auto;
+      }
+
+      .login {
+        margin-top: 20px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<img src=
-"https://restaurantindia.s3.ap-south-1.amazonaws.com/s3fs-public/news14109.jpg"
-         alt="zomato image", width="300", height="90", style="float:left">
+  <!-- Logo -->
+  <img src="https://restaurantindia.s3.ap-south-1.amazonaws.com/s3fs-public/news14109.jpg"
+       alt="Zomato Logo" class="logo">
 
+  <!-- Main Form Container -->
+  <div class="login">
+    <h1>Predict Zomato Restaurant Ratings</h1>
 
-<style>
-body {
-  background-image: url("https://images.pexels.com/photos/952356/pexels-photo-952356.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500");
-  background-position: 100%;
-  background-size: cover;
-}
-</style>
+    <form action="{{ url_for('predict') }}" method="post">
+      <input type="text" name="Online Order" placeholder="Order Online: 1 (Yes), 0 (No)" required>
+      <input type="text" name="Book Table" placeholder="Book Table: 1 (Yes), 0 (No)" required>
+      <input type="text" name="Votes" placeholder="Votes" required>
+      <input type="text" name="Location" placeholder="Location" required>
+      <input type="text" name="Restaurant Type" placeholder="Restaurant Type" required>
+      <input type="text" name="Cuisines" placeholder="Cuisines" required>
+      <input type="text" name="Cost" placeholder="Cost" required>
+      <input type="text" name="Menu Item" placeholder="Menu Item" required>
 
-
-
- <div class="login">
-	<h1>Predict Zomato Restaurant Ratings</h1>
-
-     <!-- Main Input For Receiving Query to our ML -->
-    <form action="{{ url_for('predict')}}"method="post">
-    	<input type="text" name="Online Order" placeholder="Order Online 1 for  Yes and 0 for No" required="required" />
-        <input type="text" name="Book Table" placeholder="Book Table 1 for  Yes and 0 for No" required="required" />
-		<input type="text" name="Votes" placeholder="Votes" required="required" />
-        <input type="text" name="Location" placeholder="Location" required="required" />
-        <input type="text" name="Restaurant Type" placeholder="Restaurant Type" required="required" />
-        <input type="text" name="Cuisines" placeholder="Cuisines" required="required" />
-        <input type="text" name="Cost" placeholder="Cost" required="required" />
-        <input type="text" name="Menu Item" placeholder="Menu Item" required="required" />
-
-        <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
+      <button type="submit" class="btn">Predict</button>
     </form>
 
-   <br>
-   <br>
-   {{ prediction_text }}
-
- </div>
-
+    <!-- Prediction Result -->
+    <div class="prediction">
+      {{ prediction_text }}
+    </div>
+  </div>
 
 </body>
 </html>
